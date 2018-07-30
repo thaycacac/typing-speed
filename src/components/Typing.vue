@@ -1,10 +1,14 @@
 <template>
   <div class="container">
-    <button v-on:click="start">Start</button>
-    <button v-on:click="shuffle">Shuffle</button>
     <h1 class="title is-1">Test Speed</h1>
     <h1 class="title is-1 has-text-danger" id="time">01:00</h1>
-    <div class="box">
+    <transition name="bounce">
+      <button 
+      class="button-circle button is-info"
+      @click="start"
+      v-show="!isStart">Start</button>
+    </transition>
+    <div class="box" v-show="isStart">
       <transition-group name="list-complete" tag="p">
         <span
           v-for="item in paragraph"
@@ -14,21 +18,34 @@
         </span>
       </transition-group>
     </div>
-    <div class="field">
-      <div class="control has-text-centered">
-        <input 
-        class="input is-large textfield-custom" 
-        type="text"
-        v-model="textInput" 
-        @keyup.space="enterKey" 
-        @keypress.once = "startTime"
-        placeholder="Text input">
+    <transition name="fade">
+      <div class="field" v-show="isStart">
+        <div class="control has-text-centered">
+          <input 
+          class="input is-large textfield-custom" 
+          type="text"
+          v-model="textInput" 
+          @keyup.space="enterKey"
+          @keypress = "startTime"
+          placeholder="Text input">
+        </div>
       </div>
-    </div>
+    </transition>
     <div class="columns">
       <div class="column">
         <h1 class="title is-3">Correct</h1>
         <button class="button-circle button is-success">{{ percentCorrect }}%</button>
+      </div>
+      <div class="column" v-show="isStart">
+        <!-- FIXME: click play then stop and can play again -->
+        <h1 class="title is-3">Play Again</h1>
+        <button 
+        @click="start" 
+        class="button-circle button is-warning">
+          <span class="icon">
+            <i class="fas fa-undo"></i>
+          </span>
+        </button>
       </div>
       <div class="column">
         <h1 class="title is-3">Incorrect</h1>
@@ -44,12 +61,14 @@ export default {
   data () {
     return {
       texts: 'đúng như tên truyện độc giả sẽ bắt gặp ở đó chi tiết thực sự dữ dội về đời thiếu niên bất hạnh cuộc chiến tranh chống giặc tàn khốc nhưng ẩn sâu bên ta vẫn tâm hồn trong sáng vô tư thấy can trường dũng phi thường của nhân vật tất cả ai đã từng đọc này hầu đều không ngăn được xúc động và những giọt mắt thương cảm phục đây là một tác phẩm quý kho tàng văn học việt nam câu chuyện khơi dậy mỗi người tình yêu đất nước niềm trân trọng ký ức tuổi thơ'.split(' '),
-      textInput: '',
-      paragraph: [],
-      countCorrect: 0,
-      countIncorrect: 0,
+      textInput: '',//text user input
+      paragraph: [],//paras random from array texts
+      countCorrect: 0,//count number input correct
+      countIncorrect: 0,//count number input incorrect
       percentCorrect: 0,
-      percentIncorrect: 0
+      percentIncorrect: 0,
+      isStart: false,//check start to hidden button start
+      isStartTime: 0//to count when user presskey, if is 1 then begin run else do nothing
     }
   },
   methods: {
@@ -83,12 +102,16 @@ export default {
       }
     },
     start () {
-      this.paragraph = []
-      this.paragraph = this.randomTexts()
+      const display = document.querySelector('#time')
+      if (display.textContent === '01:00' || display.textContent === '00:00') {
+        display.textContent = '01:00'
+        this.isStartTime = 0
+        this.isStart = true
+        this.paragraph = []
+        this.paragraph = this.randomTexts()
+      }
     },
     enterKey () {
-      console.log(this.textInput);
-      console.log(this.paragraph[0]);
       if (this.textInput.trim() === this.paragraph[0]) {
         this.countCorrect++
       } else {
@@ -106,22 +129,28 @@ export default {
       this.paragraph = _.shuffle(this.paragraph)
     },
     startTime () {
-    const duration = 60
-    const display = document.querySelector('#time')
-    var timer = duration, minutes, seconds;
-    setInterval(function () {
-        minutes = parseInt(timer / 60, 10)
-        seconds = parseInt(timer % 60, 10);
+      this.isStartTime++
+      if(this.isStartTime == 1) {
+        const duration = 60
+        const display = document.querySelector('#time')
+        var timer = duration, minutes, seconds;
+        const run = setInterval(function () {
+            minutes = parseInt(timer / 60, 10)
+            seconds = parseInt(timer % 60, 10);
 
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
 
-        display.textContent = minutes + ":" + seconds;
+            display.textContent = minutes + ":" + seconds;
 
-        if (--timer < 0) {
-            // timer = duration;
+            if (--timer < 0) {
+                // timer = duration;
+                timer = 60
+                clearInterval(run)
+            }
+            
+        }, 1000)
         }
-    }, 1000)
     }
   }
 }
@@ -154,5 +183,28 @@ export default {
 }
 .textfield-custom {
   width: 70%;
+}
+.bounce-enter-active {
+  animation: bounce-in .5s;
+}
+.bounce-leave-active {
+  animation: bounce-in .5s reverse;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 </style>
