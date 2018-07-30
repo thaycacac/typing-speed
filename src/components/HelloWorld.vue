@@ -2,32 +2,37 @@
   <div class="container">
     <button v-on:click="start">Start</button>
     <button v-on:click="shuffle">Shuffle</button>
-     <h1 class="title is-1">Test Speed</h1>
-    <transition-group name="list-complete" tag="p">
-    <span
-      v-for="item in paragraph"
-      v-bind:key="item"
-      class="list-complete-item is-size-4">
-      {{ item }}
-    </span>
-  </transition-group>
+    <h1 class="title is-1">Test Speed</h1>
+    <h1 class="title is-1 has-text-danger" id="time">01:00</h1>
+    <div class="box">
+      <transition-group name="list-complete" tag="p">
+        <span
+          v-for="item in paragraph"
+          v-bind:key="item"
+          class="list-complete-item is-size-3 has-text-dark">
+          {{ item }}
+        </span>
+      </transition-group>
+    </div>
     <div class="field">
-      <div class="control">
-        <input class="input" 
-        @keyup.space="enterKey" 
+      <div class="control has-text-centered">
+        <input 
+        class="input is-large textfield-custom" 
+        type="text"
         v-model="textInput" 
-        type="text" 
+        @keyup.space="enterKey" 
+        @keypress.once = "startTime"
         placeholder="Text input">
       </div>
     </div>
     <div class="columns">
       <div class="column">
         <h1 class="title is-3">Correct</h1>
-        <p class="has-text-success">{{ textCorrect }}</p>
+        <button class="button-circle button is-success">{{ percentCorrect }}%</button>
       </div>
       <div class="column">
         <h1 class="title is-3">Incorrect</h1>
-        <p class="has-text-danger incorrect">{{ textIncorrect }}</p>
+        <button class="button-circle button  is-danger is-center">{{ percentIncorrect }}%</button>
       </div>
     </div>
   </div>
@@ -38,11 +43,13 @@ import { mapState } from 'vuex'
 export default {
   data () {
     return {
-      texts: 'đúng như tên truyện độc giả sẽ bắt gặp ở đó chi tiết thực sự dữ dội về đời thiếu niên bất hạnh cuộc chiến tranh chống giặc tàn khốc nhưng ẩn sâu bên ta vẫn tâm hồn trong sáng vô tư thấy can trường dũng phi thường của nhân vật tất cả ai đã từng đọc này hầu đều không ngăn được xúc động và những giọt mắt thương cảm phục đây là một tác phẩm quý kho tàng văn học việt nam Một câu chuyện khơi dậy mỗi người tình yêu đất nước niềm trân trọng ký ức tuổi thơ'.split(' '),
+      texts: 'đúng như tên truyện độc giả sẽ bắt gặp ở đó chi tiết thực sự dữ dội về đời thiếu niên bất hạnh cuộc chiến tranh chống giặc tàn khốc nhưng ẩn sâu bên ta vẫn tâm hồn trong sáng vô tư thấy can trường dũng phi thường của nhân vật tất cả ai đã từng đọc này hầu đều không ngăn được xúc động và những giọt mắt thương cảm phục đây là một tác phẩm quý kho tàng văn học việt nam câu chuyện khơi dậy mỗi người tình yêu đất nước niềm trân trọng ký ức tuổi thơ'.split(' '),
       textInput: '',
       paragraph: [],
-      textCorrect: '',
-      textIncorrect: ''
+      countCorrect: 0,
+      countIncorrect: 0,
+      percentCorrect: 0,
+      percentIncorrect: 0
     }
   },
   methods: {
@@ -55,7 +62,7 @@ export default {
       })
     },
     randomTexts () {
-      for (let i = 0; i < 35; i++) {
+      for (let i = 0; i < 30; i++) {
         while(true){
           const textCheck = this.texts[this.randomIndex()]
           if (!this.checkExistInList(textCheck)) {
@@ -83,16 +90,38 @@ export default {
       console.log(this.textInput);
       console.log(this.paragraph[0]);
       if (this.textInput.trim() === this.paragraph[0]) {
-        this.textCorrect = this.textCorrect + ' ' + this.paragraph[0]
+        this.countCorrect++
       } else {
-        this.textIncorrect = this.textInput
+        this.countIncorrect++ 
       }
+      this.percentCorrect = this.countCorrect / (this.countCorrect + this.countIncorrect) *100
+      this.percentIncorrect = this.countIncorrect / (this.countCorrect + this.countIncorrect) *100
+      this.percentCorrect = parseFloat(Math.round(this.percentCorrect * 100) / 100).toFixed(2)
+      this.percentIncorrect = parseFloat(Math.round(this.percentIncorrect * 100) / 100).toFixed(2)
       this.paragraph.splice(0, 1);
       this.addOneTextLast()
       this.textInput = ''
     },
-    shuffle: function () {
+    shuffle () {
       this.paragraph = _.shuffle(this.paragraph)
+    },
+    startTime () {
+    const duration = 60
+    const display = document.querySelector('#time')
+    var timer = duration, minutes, seconds;
+    setInterval(function () {
+        minutes = parseInt(timer / 60, 10)
+        seconds = parseInt(timer % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        display.textContent = minutes + ":" + seconds;
+
+        if (--timer < 0) {
+            // timer = duration;
+        }
+    }, 1000)
     }
   }
 }
@@ -115,5 +144,15 @@ export default {
 }
 .list-complete-leave-active {
   position: absolute;
+}
+.button-circle {
+  height: 200px;
+  width: 200px;
+  border-radius: 50%;
+  font-size: 35px;
+  border: 1px;
+}
+.textfield-custom {
+  width: 70%;
 }
 </style>
