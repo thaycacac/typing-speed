@@ -36,9 +36,8 @@
         <h1 class="title is-3">Correct</h1>
         <button class="button-circle button is-success">{{ percentCorrect }}%</button>
       </div>
-      <div class="column" v-show="isStart">
-        <!-- FIXME: click play then stop and can play again -->
-        <h1 class="title is-3">Play Again</h1>
+      <div class="column" v-show="isStart && !isRunning">
+        <h1 class="title is-3">Shuffle</h1>
         <button 
         @click="start" 
         class="button-circle button is-warning">
@@ -52,12 +51,22 @@
         <button class="button-circle button  is-danger is-center">{{ percentIncorrect }}%</button>
       </div>
     </div>
+    <result
+    :wpm="countCorrect"
+    :keystrokes="isStartTime"
+    :percentCorrect="percentCorrect"
+    :correctWords="countCorrect"
+    :inCorrectWords="countIncorrect"></result>
   </div>
 </template>
 
 <script>
 import { mapState } from 'vuex'
+import Result from '../components/Result';
 export default {
+  components: {
+    Result
+  },
   data () {
     return {
       texts: 'đúng như tên truyện độc giả sẽ bắt gặp ở đó chi tiết thực sự dữ dội về đời thiếu niên bất hạnh cuộc chiến tranh chống giặc tàn khốc nhưng ẩn sâu bên ta vẫn tâm hồn trong sáng vô tư thấy can trường dũng phi thường của nhân vật tất cả ai đã từng đọc này hầu đều không ngăn được xúc động và những giọt mắt thương cảm phục đây là một tác phẩm quý kho tàng văn học việt nam câu chuyện khơi dậy mỗi người tình yêu đất nước niềm trân trọng ký ức tuổi thơ'.split(' '),
@@ -65,10 +74,11 @@ export default {
       paragraph: [],//paras random from array texts
       countCorrect: 0,//count number input correct
       countIncorrect: 0,//count number input incorrect
-      percentCorrect: 0,
-      percentIncorrect: 0,
+      percentCorrect: '',
+      percentIncorrect: '',
       isStart: false,//check start to hidden button start
-      isStartTime: 0//to count when user presskey, if is 1 then begin run else do nothing
+      isStartTime: 0,//to count when user presskey, if is 1 then begin run else do nothing
+      isRunning: false
     }
   },
   methods: {
@@ -131,10 +141,11 @@ export default {
     startTime () {
       this.isStartTime++
       if(this.isStartTime == 1) {
-        const duration = 60
+        this.isRunning = true
+        const duration = 2
         const display = document.querySelector('#time')
         var timer = duration, minutes, seconds;
-        const run = setInterval(function () {
+        const run = setInterval(() => {
             minutes = parseInt(timer / 60, 10)
             seconds = parseInt(timer % 60, 10);
 
@@ -146,9 +157,9 @@ export default {
             if (--timer < 0) {
                 // timer = duration;
                 timer = 60
+                this.isRunning = false
                 clearInterval(run)
             }
-            
         }, 1000)
         }
     }

@@ -17,7 +17,7 @@
           <hr>
           <div class="level-item has-text-centered">
             <div>
-              <p class="title is-1 has-text-danger">3,456 WPM</p>
+              <p class="title is-1 has-text-danger">{{ wpm }} WPM</p>
               <p class="heading has-text-grey-light">(words per minute)</p>
             </div>
           </div>
@@ -34,26 +34,48 @@
 </template>
 <script>
 export default {
+  props: {
+    wpm: {
+      type: Number,
+      required: true
+    },
+    keystrokes: {
+      type: Number,
+      required: true
+    },
+    percentCorrect: {
+      type: String,
+      required: true
+    },
+    correctWords: {
+      type: Number,
+      required: true
+    },
+    inCorrectWords: {
+      type: Number,
+      required: true
+    }
+  },
   data() {
-            return {
-                data: [
-                    { 'info': 'Keystrokes', 'result': '15'},
-                    { 'info': 'Accuracy', 'result': '100%'},
-                    { 'info': 'Correct words', 'result': '100'},
-                    { 'info': 'Wrong words', 'result': 'Wrong words'}
-                ],
-                columns: [
-                    {
-                        field: 'info',
-                        label: 'Attribute',
-                    },
-                    {
-                        field: 'result',
-                        label: 'Result',
-                    }
-                ]
-            }
-        }
+    return {
+      data: [
+          { 'info': 'Keystrokes', 'result': this.keystrokes},
+          { 'info': 'Accuracy', 'result': this.percentCorrect},
+          { 'info': 'Correct words', 'result': this.correctWords},
+          { 'info': 'Wrong words', 'result': this.inCorrectWords}
+      ],
+      columns: [
+          {
+            field: 'info',
+            label: 'Attribute',
+          },
+          {
+            field: 'result',
+            label: 'Result',
+          }
+      ]
+    }
+  }
 };
 
 </script>
