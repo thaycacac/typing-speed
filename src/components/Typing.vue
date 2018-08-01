@@ -3,6 +3,15 @@
     <h1 class="title is-1">Test Speed</h1>
     <h1 class="title is-1 has-text-danger" id="time">01:00</h1>
     <transition name="bounce">
+      <result
+      :wpm="countCorrect"
+      :keystrokes="isStartTime"
+      :percentCorrect="percentCorrect"
+      :correctWords="countCorrect"
+      :inCorrectWords="countIncorrect"
+      v-show="isStart && !isRunning && displayResult"></result>
+    </transition>
+    <transition name="bounce">
       <button 
       class="button-circle button is-info"
       @click="start"
@@ -27,7 +36,8 @@
           v-model="textInput" 
           @keyup.space="enterKey"
           @keypress = "startTime"
-          placeholder="Text input">
+          placeholder="Text input"
+          :disabled = "isStart && !isRunning && displayResult">
         </div>
       </div>
     </transition>
@@ -51,12 +61,6 @@
         <button class="button-circle button  is-danger is-center">{{ percentIncorrect }}%</button>
       </div>
     </div>
-    <result
-    :wpm="countCorrect"
-    :keystrokes="isStartTime"
-    :percentCorrect="percentCorrect"
-    :correctWords="countCorrect"
-    :inCorrectWords="countIncorrect"></result>
   </div>
 </template>
 
@@ -74,11 +78,12 @@ export default {
       paragraph: [],//paras random from array texts
       countCorrect: 0,//count number input correct
       countIncorrect: 0,//count number input incorrect
-      percentCorrect: '',
-      percentIncorrect: '',
+      percentCorrect: '0',
+      percentIncorrect: '0',
       isStart: false,//check start to hidden button start
       isStartTime: 0,//to count when user presskey, if is 1 then begin run else do nothing
-      isRunning: false
+      isRunning: false,
+      displayResult: false
     }
   },
   methods: {
@@ -115,7 +120,12 @@ export default {
       const display = document.querySelector('#time')
       if (display.textContent === '01:00' || display.textContent === '00:00') {
         display.textContent = '01:00'
-        this.isStartTime = 0
+        this.isStartTime = 0,
+        this.countCorrect = 0,
+        this.countCorrect = 0,
+        this.percentCorrect = '0',
+        this.percentIncorrect = '0',
+        this.displayResult = false,
         this.isStart = true
         this.paragraph = []
         this.paragraph = this.randomTexts()
@@ -141,8 +151,9 @@ export default {
     startTime () {
       this.isStartTime++
       if(this.isStartTime == 1) {
+        this.displayResult = true
         this.isRunning = true
-        const duration = 2
+        const duration = 60
         const display = document.querySelector('#time')
         var timer = duration, minutes, seconds;
         const run = setInterval(() => {

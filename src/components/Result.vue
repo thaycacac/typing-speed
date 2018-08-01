@@ -22,7 +22,32 @@
             </div>
           </div>
           <hr>
-          <b-table :data="data" :columns="columns" class="table is-striped table-custom"></b-table>
+          <table class="table is-striped is-fullwidth">
+            <thead>
+              <tr>
+                <th class="has-text-centered">Attribute</th>
+                <th class="has-text-centered">Result</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Keystrokes</td>
+                <td class="has-text-centered">{{ keystrokes }}</td>
+              </tr>
+              <tr>
+                <td>Accuracy</td>
+                <td class="has-text-centered">{{ percentCorrect }}%</td>
+              </tr>
+              <tr>
+                <td>Correct words</td>
+                <td class="has-text-centered">{{ correctWords }}</td>
+              </tr>
+              <tr>
+                <td>Wrong words</td>
+                <td class="has-text-centered">{{ inCorrectWords }}</td>
+              </tr>
+            </tbody>
+          </table>
           <div class="has-text-centered">
             <h4 class="title is-4 has-text-success">Congratulations!</h4>
           </div>
@@ -54,26 +79,6 @@ export default {
     inCorrectWords: {
       type: Number,
       required: true
-    }
-  },
-  data() {
-    return {
-      data: [
-          { 'info': 'Keystrokes', 'result': this.keystrokes},
-          { 'info': 'Accuracy', 'result': this.percentCorrect},
-          { 'info': 'Correct words', 'result': this.correctWords},
-          { 'info': 'Wrong words', 'result': this.inCorrectWords}
-      ],
-      columns: [
-          {
-            field: 'info',
-            label: 'Attribute',
-          },
-          {
-            field: 'result',
-            label: 'Result',
-          }
-      ]
     }
   }
 };
